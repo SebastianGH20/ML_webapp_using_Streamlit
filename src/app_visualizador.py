@@ -1,10 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from joblib import load
-
-# Cargar el modelo
-model = load("anime_rating_classifier.sav")
 
 # Título de la aplicación
 st.title('Análisis del Dataset de Anime')
@@ -28,7 +24,7 @@ st.write(data.columns)
 st.write("Aquí están los datos del dataset de anime:")
 st.write(data)
 
-# Asegurarse de que la columna 'rating' existe
+# Asegurarse de que la columna 'rating' existe (ajusta según tu interés)
 if 'rating' not in data.columns:
     st.error("La columna 'rating' no se encuentra en el DataFrame.")
 else:
@@ -51,7 +47,7 @@ else:
     st.header('Gráfico de barras de los ratings filtrados')
     st.bar_chart(filtered_data['rating'].value_counts())
 
-    # Visualización adicional con Plotly
+    # Visualización adicional con Plotly (opcional)
     st.header('Distribución de géneros en los datos filtrados')
     if 'genre' in filtered_data.columns:
         genres = filtered_data['genre'].str.get_dummies(sep=', ')  # Convertir la columna de géneros en dummies
@@ -62,24 +58,3 @@ else:
         st.plotly_chart(fig)
     else:
         st.error("La columna 'genre' no se encuentra en el DataFrame.")
-
-# Predicciones usando el modelo
-st.header('Predicción de Rating de Anime')
-st.subheader('Selecciona los géneros para predecir el rating')
-
-# Crear un selector múltiple para los géneros
-selected_genres = st.multiselect('Selecciona géneros', options=data['genre'].unique())
-
-# Convertir la selección a un DataFrame
-if selected_genres:
-    # Crear un DataFrame para la predicción
-    genre_dummies = pd.get_dummies(pd.Series(selected_genres), prefix='genre')
-    genre_dummies = genre_dummies.reindex(columns=data['genre'].str.get_dummies(sep=', ').columns, fill_value=0)
-
-    # Realizar la predicción
-    predicted_rating = model.predict(genre_dummies)
-
-    # Mostrar el resultado
-    st.write(f'Predicción del rating para los géneros seleccionados: {predicted_rating[0]}')
-else:
-    st.write('Por favor, selecciona al menos un género para realizar la predicción.')
